@@ -1,0 +1,35 @@
+BriefSnap Source-Available License (No-Run) v1.0
+Copyright (c) 2026 emmykades
+
+This repository is published so that anyone can read and audit the source
+code — in particular, to verify the privacy claim made in the README: that
+your AI API key goes straight from your browser to your chosen AI provider,
+and is never sent to, logged by, or stored on any BriefSnap server.
+
+Subject to that purpose, and to the conditions below, permission is granted
+to any person obtaining a copy of this software and associated documentation
+files (the "Software") to view, read, and audit the Software.
+
+No permission is granted, and this license does NOT allow you, without a
+separate written commercial license from the Licensor, to:
+
+  1. Run, execute, host, deploy, or otherwise operate the Software or any
+     substantially similar derivative of it, for your own use or for the
+     use of any other person or organization;
+  2. Copy, modify, merge, publish, distribute, sublicense, or sell copies
+     of the Software or any derivative of it; or
+  3. Use the Software, in whole or in part, as the basis for a competing
+     product or service.
+
+The hosted, deployed version of BriefSnap is a commercial product available
+for a one-time purchase. This repository is not a substitute for that
+purchase and does not grant a license to self-host BriefSnap instead of
+buying it.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
