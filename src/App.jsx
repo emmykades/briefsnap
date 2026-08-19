@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { PROVIDERS } from './lib/apiRouter';
 import { readStateFromHash } from './lib/hashEncoder';
 import { GITHUB_URL } from './lib/constants';
+import { checkAccess } from './lib/access';
 import Background from './components/Background';
 import StepIndicator from './components/StepIndicator';
 import Setup from './components/Setup';
@@ -9,6 +10,7 @@ import QuestionnaireBuilder from './components/QuestionnaireBuilder';
 import ClientForm from './components/ClientForm';
 import BriefView from './components/BriefView';
 import BriefOutput from './components/BriefOutput';
+import LockedScreen from './components/LockedScreen';
 import Toast from './components/Toast';
 import { DEFAULT_THEME_ID } from './lib/themes';
 
@@ -60,6 +62,17 @@ export default function App() {
           title={hashState.briefTitle}
           intro={hashState.briefIntro}
         />
+      </>
+    );
+  }
+
+  // The tool itself (Setup/Questionnaire/Brief builder) requires the access key.
+  // Client-facing pages above (questionnaire, brief) never require it.
+  if (!checkAccess()) {
+    return (
+      <>
+        <Background />
+        <LockedScreen />
       </>
     );
   }
