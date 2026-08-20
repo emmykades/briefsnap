@@ -2,6 +2,10 @@ export function formatAnswer(value) {
   return Array.isArray(value) ? value.join(', ') : value || '';
 }
 
+export function stripMarkdownBold(text) {
+  return text.replace(/\*\*(.+?)\*\*/g, '$1');
+}
+
 export function slugify(text) {
   return text
     .toLowerCase()

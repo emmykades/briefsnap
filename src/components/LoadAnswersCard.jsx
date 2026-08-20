@@ -24,11 +24,11 @@ export default function LoadAnswersCard({ onLoadAnswers }) {
   }
 
   return (
-    <div className="card">
-      <label htmlFor="loadAnswers" className="field-label mb-2">
+    <div className="card flex flex-col items-center gap-4 text-center">
+      <label htmlFor="loadAnswers" className="text-lg sm:text-xl font-semibold text-ink">
         Already have client answers?
       </label>
-      <div className="flex gap-2">
+      <div className="flex gap-2 w-full">
         <input
           id="loadAnswers"
           type="text"
@@ -46,7 +46,7 @@ export default function LoadAnswersCard({ onLoadAnswers }) {
           Load
         </button>
       </div>
-      {loadLinkError && <p className="mt-2 text-sm text-red-300">{loadLinkError}</p>}
+      {loadLinkError && <p className="text-sm text-red-300">{loadLinkError}</p>}
     </div>
   );
 }

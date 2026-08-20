@@ -72,9 +72,9 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
         </p>
       </div>
 
-      <div className="card flex flex-col gap-2 p-5 sm:p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-ink">Connect your AI provider</h2>
+      <div className="card flex flex-col gap-5 p-6 sm:p-8">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h2 className="text-xl sm:text-2xl font-semibold text-ink">Connect your AI provider</h2>
           <span className="text-xs font-medium text-slate-400 bg-white/5 border border-white/10 rounded-full px-2.5 py-1">
             Bring your own key
           </span>
@@ -128,7 +128,7 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
               onChange={(e) => updateConfig({ customNiche: e.target.value })}
               placeholder="Describe your niche"
               aria-label="Custom niche"
-              className="field-input mt-2"
+              className="field-input mt-3"
             />
           )}
         </div>
@@ -153,7 +153,7 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
             type="button"
             onClick={onConnected}
             disabled={!canProceed}
-            className="btn-primary px-3 py-1.5 text-xs"
+            className="btn-primary"
           >
             Next →
           </button>

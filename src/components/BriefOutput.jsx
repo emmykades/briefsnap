@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { sendMessage } from '../lib/apiRouter';
 import { briefSystemPrompt, kickoffAgendaPrompt } from '../lib/prompts';
-import { splitSections, formatAnswer, slugify } from '../lib/brief';
+import { splitSections, formatAnswer, slugify, stripMarkdownBold } from '../lib/brief';
 import { buildShareUrl } from '../lib/hashEncoder';
 import { DEFAULT_THEME_ID } from '../lib/themes';
 import LoadingSpinner from './LoadingSpinner';
@@ -107,7 +107,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
         apiKey: config.apiKey,
         messages: [{ role: 'user', content: kickoffAgendaPrompt(briefText) }],
       });
-      setAgendaText(reply);
+      setAgendaText(stripMarkdownBold(reply));
       setAgendaStatus('success');
     } catch (err) {
       setAgendaError(err.message || 'Something went wrong.');
@@ -190,12 +190,12 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
   return (
     <div className="w-full max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-8 items-start">
       <div className="w-full max-w-2xl flex flex-col gap-8">
-        <div id="client-answers" className="flex flex-col gap-3">
+        <div id="client-answers" className="card flex flex-col gap-4">
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-ink">Review client answers</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-ink">Review client answers</h2>
             <p className="mt-1 text-sm text-slate-400">Check the responses below before generating the brief.</p>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
             <table className="w-full text-sm text-left">
               <tbody className="divide-y divide-white/10">
                 {questions.map((q, i) => (
@@ -247,16 +247,17 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
               </tbody>
             </table>
           </div>
-          <button type="button" onClick={downloadAnswers} className="btn-secondary self-center">
-            Download answers
-          </button>
+          <div className="border-t border-white/10 pt-4 flex flex-wrap justify-center gap-3">
+            <button type="button" onClick={downloadAnswers} className="btn-secondary">
+              Download answers
+            </button>
+            {briefStatus === 'idle' && (
+              <button type="button" onClick={generateBrief} className="btn-primary">
+                Generate project brief
+              </button>
+            )}
+          </div>
         </div>
-
-        {briefStatus === 'idle' && (
-          <button type="button" onClick={generateBrief} className="btn-primary mx-auto">
-            Generate project brief
-          </button>
-        )}
 
         {briefStatus === 'loading' && (
           <div className="card">
@@ -272,113 +273,115 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
 
         {briefStatus === 'success' && (
           <div className="flex flex-col gap-6">
-            <h2 id="client-brief" className="text-xl font-semibold text-ink text-center">
-              Client Brief
-            </h2>
+            <div className="card flex flex-col gap-4">
+              <h2 id="client-brief" className="text-lg sm:text-xl font-semibold text-ink text-center">
+                Client Brief
+              </h2>
 
-            {editingBrief ? (
-              <div className="flex flex-col gap-3">
-                <textarea
-                  value={briefDraft}
-                  onChange={(e) => setBriefDraft(e.target.value)}
-                  rows={18}
-                  className="field-input font-mono text-xs leading-relaxed"
-                />
-                <div className="flex justify-end gap-2">
-                  <button type="button" onClick={() => setEditingBrief(false)} className="btn-secondary px-3 py-1.5 text-xs">
-                    Cancel
-                  </button>
-                  <button type="button" onClick={saveBriefEdit} className="btn-primary px-3 py-1.5 text-xs">
-                    Save changes
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex flex-col gap-4">
-                  {sections.map((section, i) => (
-                    <div
-                      key={i}
-                      id={`section-${section.title ? slugify(section.title) : i}`}
-                      className="card border-l-2 border-l-accent py-4 sm:py-5"
-                    >
-                      {section.title && <h3 className="text-sm font-semibold text-ink mb-2">{section.title}</h3>}
-                      <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">{section.body}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-wrap justify-center gap-3">
-                  <button type="button" onClick={() => copyText(briefText)} className="btn-secondary">
-                    Copy brief
-                  </button>
-                  <button type="button" onClick={downloadBrief} className="btn-secondary">
-                    Download as .txt
-                  </button>
-                  <button type="button" onClick={startEditBrief} className="btn-secondary">
-                    <PencilIcon className="w-3.5 h-3.5" />
-                    Edit
-                  </button>
-                  <button type="button" onClick={generateBrief} className="btn-dark">
-                    Regenerate brief
-                  </button>
-                </div>
-              </>
-            )}
-
-            <div className="card flex flex-col gap-3">
-              <h3 className="text-sm font-semibold text-ink">Customize this shared brief</h3>
-
-              <div>
-                <label htmlFor="briefLinkTitle" className="field-label">
-                  Title shown to your client (optional)
-                </label>
-                <input
-                  id="briefLinkTitle"
-                  type="text"
-                  value={briefLinkTitle}
-                  onChange={(e) => setBriefLinkTitle(e.target.value)}
-                  placeholder={defaultBriefTitle}
-                  className="field-input"
-                />
-              </div>
-              <div>
-                <label htmlFor="briefLinkIntro" className="field-label">
-                  Intro message shown to your client (optional)
-                </label>
-                <textarea
-                  id="briefLinkIntro"
-                  rows={2}
-                  value={briefLinkIntro}
-                  onChange={(e) => setBriefLinkIntro(e.target.value)}
-                  placeholder={DEFAULT_BRIEF_INTRO}
-                  className="field-input"
-                />
-              </div>
-
-              <ThemePicker value={briefLinkTheme} onChange={setBriefLinkTheme} />
-
-              {agendaStatus === 'success' && (
-                <label className="flex items-center gap-2 text-sm text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={includeAgenda}
-                    onChange={(e) => setIncludeAgenda(e.target.checked)}
-                    className="text-accent focus:ring-accent/60"
+              {editingBrief ? (
+                <div className="flex flex-col gap-3">
+                  <textarea
+                    value={briefDraft}
+                    onChange={(e) => setBriefDraft(e.target.value)}
+                    rows={18}
+                    className="field-input font-mono text-xs leading-relaxed"
                   />
-                  Include the kickoff call agenda in this link
-                </label>
+                  <div className="flex justify-end gap-2">
+                    <button type="button" onClick={() => setEditingBrief(false)} className="btn-secondary px-3 py-1.5 text-xs">
+                      Cancel
+                    </button>
+                    <button type="button" onClick={saveBriefEdit} className="btn-primary px-3 py-1.5 text-xs">
+                      Save changes
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-4">
+                    {sections.map((section, i) => (
+                      <div
+                        key={i}
+                        id={`section-${section.title ? slugify(section.title) : i}`}
+                        className="card border-l-2 border-l-accent py-4 sm:py-5"
+                      >
+                        {section.title && <h3 className="text-sm font-semibold text-ink mb-2">{section.title}</h3>}
+                        <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">{section.body}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-white/10 pt-4 flex flex-col gap-3">
+                    <h3 className="text-lg sm:text-xl font-semibold text-ink text-center">Customize this brief</h3>
+
+                    <div>
+                      <label htmlFor="briefLinkTitle" className="field-label">
+                        Title shown to your client (optional)
+                      </label>
+                      <input
+                        id="briefLinkTitle"
+                        type="text"
+                        value={briefLinkTitle}
+                        onChange={(e) => setBriefLinkTitle(e.target.value)}
+                        placeholder={defaultBriefTitle}
+                        className="field-input"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="briefLinkIntro" className="field-label">
+                        Intro message shown to your client (optional)
+                      </label>
+                      <textarea
+                        id="briefLinkIntro"
+                        rows={2}
+                        value={briefLinkIntro}
+                        onChange={(e) => setBriefLinkIntro(e.target.value)}
+                        placeholder={DEFAULT_BRIEF_INTRO}
+                        className="field-input"
+                      />
+                    </div>
+
+                    <ThemePicker value={briefLinkTheme} onChange={setBriefLinkTheme} />
+
+                    {agendaStatus === 'success' && (
+                      <label className="flex items-center gap-2 text-sm text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={includeAgenda}
+                          onChange={(e) => setIncludeAgenda(e.target.checked)}
+                          className="text-accent focus:ring-accent/60"
+                        />
+                        Include the kickoff call agenda in this link
+                      </label>
+                    )}
+                  </div>
+
+                  <div className="border-t border-white/10 pt-4 flex flex-wrap justify-center gap-3">
+                    <button type="button" onClick={() => copyText(briefText)} className="btn-secondary">
+                      Copy brief
+                    </button>
+                    <button type="button" onClick={downloadBrief} className="btn-secondary">
+                      Download as .txt
+                    </button>
+                    <button type="button" onClick={startEditBrief} className="btn-secondary">
+                      <PencilIcon className="w-3.5 h-3.5" />
+                      Edit
+                    </button>
+                    <button type="button" onClick={generateBrief} className="btn-dark">
+                      Regenerate brief
+                    </button>
+                    {agendaStatus === 'idle' && (
+                      <button type="button" onClick={generateAgenda} className="btn-dark">
+                        Generate kickoff call agenda
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
             </div>
 
-            {agendaStatus === 'idle' && (
-              <button type="button" onClick={generateAgenda} className="btn-dark mx-auto">
-                Generate kickoff agenda
-              </button>
-            )}
             {agendaStatus === 'loading' && (
               <div className="card">
-                <LoadingSpinner message="Generating kickoff agenda..." />
+                <LoadingSpinner message="Generating kickoff call agenda..." />
               </div>
             )}
             {agendaStatus === 'error' && (
@@ -433,7 +436,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
       <QuickLinksNav items={quickLinks} />
 
       {briefStatus === 'success' && (
-        <FloatingShareButton onClick={handleCreateBriefLink}>Create shareable client link →</FloatingShareButton>
+        <FloatingShareButton onClick={handleCreateBriefLink}>Create shareable client brief link →</FloatingShareButton>
       )}
     </div>
   );

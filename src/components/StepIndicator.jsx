@@ -1,12 +1,15 @@
 import { CheckIcon } from './icons';
 
-const STEPS = ['Setup', 'Questionnaire', 'Client Form', 'Brief'];
+const STEPS = [
+  { label: 'Setup', step: 1 },
+  { label: 'Questionnaire', step: 2 },
+  { label: 'Brief', step: 4 },
+];
 
 export default function StepIndicator({ currentStep, canJump, onStepClick }) {
   return (
     <ol className="flex items-center justify-between max-w-2xl mx-auto mb-6" aria-label="Progress">
-      {STEPS.map((label, index) => {
-        const stepNumber = index + 1;
+      {STEPS.map(({ label, step: stepNumber }, index) => {
         const isComplete = stepNumber < currentStep;
         const isCurrent = stepNumber === currentStep;
         const clickable = !isCurrent && Boolean(canJump?.(stepNumber));
@@ -16,7 +19,6 @@ export default function StepIndicator({ currentStep, canJump, onStepClick }) {
             <Tag
               type={clickable ? 'button' : undefined}
               onClick={clickable ? () => onStepClick(stepNumber) : undefined}
-              title={stepNumber === 3 ? 'Filled out by your client on their own device' : undefined}
               className={
                 'flex flex-col items-center gap-1.5 rounded-lg py-1 px-1.5 -mx-1.5 transition ' +
                 (clickable ? 'cursor-pointer hover:bg-white/[0.06]' : 'cursor-default')
@@ -33,7 +35,7 @@ export default function StepIndicator({ currentStep, canJump, onStepClick }) {
                 }
                 aria-current={isCurrent ? 'step' : undefined}
               >
-                {isComplete ? <CheckIcon className="w-4 h-4" /> : stepNumber}
+                {isComplete ? <CheckIcon className="w-4 h-4" /> : index + 1}
               </div>
               <span
                 className={
@@ -43,7 +45,7 @@ export default function StepIndicator({ currentStep, canJump, onStepClick }) {
                 {label}
               </span>
             </Tag>
-            {stepNumber !== STEPS.length && (
+            {index !== STEPS.length - 1 && (
               <div
                 className={
                   'flex-1 h-px mx-2 rounded-full ' +

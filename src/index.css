@@ -18,7 +18,7 @@ body {
   }
 
   .field-label {
-    @apply block text-sm font-medium text-ink mb-0.5;
+    @apply block text-sm font-medium text-ink mb-1.5;
   }
 
   .field-input {

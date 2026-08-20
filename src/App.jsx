@@ -118,7 +118,6 @@ function FreelancerApp({ initialAnswersState }) {
   }
 
   function canJumpTo(stepNumber) {
-    if (stepNumber === 3) return false; // filled out by the client on their own device
     if (stepNumber === 4) return Boolean(answersState);
     return true;
   }

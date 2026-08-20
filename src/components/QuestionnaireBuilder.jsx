@@ -27,6 +27,8 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
   const [status, setStatus] = useState(questions ? 'success' : 'idle'); // idle | loading | success | parse_error | error
   const [errorMessage, setErrorMessage] = useState('');
   const [newQuestionId, setNewQuestionId] = useState(null);
+  const [shareLink, setShareLink] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const niche = config.niche === 'Other' ? config.customNiche : config.niche;
   const { count, additionalInfo, formTitle, formIntro, theme = DEFAULT_THEME_ID } = options;
@@ -95,7 +97,18 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
     } catch {
       // clipboard may be unavailable; the link is still shown for manual copy below
     }
+    setShareLink(shareUrl);
     onShareLinkCopied(shareUrl);
+  }
+
+  async function handleCopyLink() {
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      // clipboard may be unavailable; the URL is still visible for manual copy
+    }
   }
 
   return (
@@ -108,20 +121,23 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
       </div>
 
       <div className="card flex flex-col gap-3">
-        <h3 className="text-sm font-semibold text-ink">Customize this questionnaire</h3>
+        <h3 className="text-lg sm:text-xl font-semibold text-ink text-center">Customize this questionnaire</h3>
 
         <div>
-          <label htmlFor="questionCount" className="field-label">
-            Number of questions <span className="text-slate-500 font-normal">(5–25)</span>
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label htmlFor="questionCount" className="field-label mb-0">
+              Number of questions <span className="text-slate-500 font-normal">(5–25)</span>
+            </label>
+            <span className="text-sm font-semibold text-ink">{count}</span>
+          </div>
           <input
             id="questionCount"
-            type="number"
+            type="range"
             min={5}
             max={25}
             value={count}
             onChange={(e) => updateOptions({ count: e.target.value })}
-            className="field-input w-24"
+            className="w-full accent-accent cursor-pointer"
           />
         </div>
         <div>
@@ -166,13 +182,15 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
         </div>
 
         <ThemePicker value={theme} onChange={(id) => updateOptions({ theme: id })} />
-      </div>
 
-      {status === 'idle' && (
-        <button type="button" onClick={generate} className="btn-primary mx-auto">
-          Generate questionnaire for {niche}
-        </button>
-      )}
+        {status === 'idle' && (
+          <div className="flex justify-center pt-1">
+            <button type="button" onClick={generate} className="btn-primary">
+              Generate questionnaire for {niche}
+            </button>
+          </div>
+        )}
+      </div>
 
       {status === 'loading' && (
         <div className="card">
@@ -191,39 +209,69 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
 
       {status === 'success' && questions && (
         <>
-          <ol className="flex flex-col gap-3">
-            {questions.map((q, i) => (
-              <QuestionCard
-                key={q.id || i}
-                index={i}
-                question={q}
-                forceEdit={q.id === newQuestionId}
-                onSave={(updated) => setQuestions((prev) => prev.map((pq, idx) => (idx === i ? updated : pq)))}
-                onDelete={() => deleteQuestion(q.id)}
-                onMoveUp={() => moveQuestion(i, -1)}
-                onMoveDown={() => moveQuestion(i, 1)}
-                canMoveUp={i > 0}
-                canMoveDown={i < questions.length - 1}
-              />
-            ))}
-          </ol>
+          <div className="card flex flex-col gap-4">
+            <h3 className="text-lg sm:text-xl font-semibold text-ink text-center">Client Questionnaire</h3>
 
-          <button type="button" onClick={addQuestion} className="btn-secondary self-center">
-            + Add question
-          </button>
+            <ol className="flex flex-col gap-3">
+              {questions.map((q, i) => (
+                <QuestionCard
+                  key={q.id || i}
+                  index={i}
+                  question={q}
+                  forceEdit={q.id === newQuestionId}
+                  onSave={(updated) => setQuestions((prev) => prev.map((pq, idx) => (idx === i ? updated : pq)))}
+                  onDelete={() => deleteQuestion(q.id)}
+                  onMoveUp={() => moveQuestion(i, -1)}
+                  onMoveDown={() => moveQuestion(i, 1)}
+                  canMoveUp={i > 0}
+                  canMoveDown={i < questions.length - 1}
+                />
+              ))}
+            </ol>
 
-          <button type="button" onClick={generate} className="btn-secondary self-center">
-            Regenerate
-          </button>
+            <div className="border-t border-white/10 pt-4 flex flex-col gap-4 items-center">
+              <div className="flex gap-3">
+                <button type="button" onClick={addQuestion} className="btn-secondary">
+                  + Add question
+                </button>
 
-          <p className="flex items-start gap-2 text-xs text-slate-500">
-            <SparkleIcon className="w-4 h-4 flex-none mt-0.5 text-accent2" />
-            <span>
-              Output quality depends on the model you're using. For best results, use GPT-4o, Claude
-              Sonnet, or Gemini 1.5 Pro. Smaller or local models will still work but may produce simpler
-              output.
-            </span>
-          </p>
+                <button type="button" onClick={generate} className="btn-secondary">
+                  Regenerate
+                </button>
+              </div>
+
+              <p className="flex items-start gap-2 text-xs text-slate-500">
+                <SparkleIcon className="w-4 h-4 flex-none mt-0.5 text-accent2" />
+                <span>
+                  Output quality depends on the model you're using. For best results, use GPT-4o, Claude
+                  Sonnet, or Gemini 1.5 Pro. Smaller or local models will still work but may produce simpler
+                  output.
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {shareLink && (
+            <div className="card flex flex-col gap-3">
+              <div className="text-center">
+                <h3 className="text-lg sm:text-xl font-semibold text-ink">Shareable client link</h3>
+                <p className="mt-1 text-sm text-slate-400">Send this to your client — they don't need an account.</p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareLink}
+                  onFocus={(e) => e.target.select()}
+                  className="field-input flex-1 text-slate-300"
+                  aria-label="Client questionnaire link"
+                />
+                <button type="button" onClick={handleCopyLink} className="btn-primary flex-none">
+                  {linkCopied ? 'Copied!' : 'Copy link'}
+                </button>
+              </div>
+            </div>
+          )}
 
           <FloatingShareButton onClick={handleCreateLink}>Create shareable client link →</FloatingShareButton>
         </>

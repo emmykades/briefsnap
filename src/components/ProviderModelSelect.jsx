@@ -21,7 +21,7 @@ export default function ProviderModelSelect({ provider, model, onChange }) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-4">
       <div>
         <label htmlFor="provider" className="field-label">
           AI Provider
