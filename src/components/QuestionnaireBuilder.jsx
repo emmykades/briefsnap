@@ -114,19 +114,19 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-ink">Generate questionnaire</h2>
-        <p className="mt-1 text-sm text-slate-400">
+        <h2 className="text-3xl sm:text-4xl font-normal text-ink">Generate questionnaire</h2>
+        <p className="mt-1 text-sm text-muted">
           for <span className="font-medium text-ink">{niche}</span> — {count} tailored intake questions.
         </p>
       </div>
 
       <div className="card flex flex-col gap-3">
-        <h3 className="text-lg sm:text-xl font-semibold text-ink text-center">Customize this questionnaire</h3>
+        <h3 className="text-2xl sm:text-3xl font-normal text-ink text-center">Customize this questionnaire</h3>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label htmlFor="questionCount" className="field-label mb-0">
-              Number of questions <span className="text-slate-500 font-normal">(5–25)</span>
+              Number of questions <span className="text-muted font-normal">(5–25)</span>
             </label>
             <span className="text-sm font-semibold text-ink">{count}</span>
           </div>
@@ -154,7 +154,7 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
           />
         </div>
 
-        <div className="border-t border-white/10 pt-3">
+        <div className="border-t border-line pt-3">
           <label htmlFor="formTitle" className="field-label">
             Title shown to your client (optional)
           </label>
@@ -210,7 +210,7 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
       {status === 'success' && questions && (
         <>
           <div className="card flex flex-col gap-4">
-            <h3 className="text-lg sm:text-xl font-semibold text-ink text-center">Client Questionnaire</h3>
+            <h3 className="text-2xl sm:text-3xl font-normal text-ink text-center">Client Questionnaire</h3>
 
             <ol className="flex flex-col gap-3">
               {questions.map((q, i) => (
@@ -229,7 +229,7 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
               ))}
             </ol>
 
-            <div className="border-t border-white/10 pt-4 flex flex-col gap-4 items-center">
+            <div className="border-t border-line pt-4 flex flex-col gap-4 items-center">
               <div className="flex gap-3">
                 <button type="button" onClick={addQuestion} className="btn-secondary">
                   + Add question
@@ -240,8 +240,8 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
                 </button>
               </div>
 
-              <p className="flex items-start gap-2 text-xs text-slate-500">
-                <SparkleIcon className="w-4 h-4 flex-none mt-0.5 text-accent2" />
+              <p className="flex items-start gap-2 text-xs text-muted">
+                <SparkleIcon className="w-4 h-4 flex-none mt-0.5 text-accent" />
                 <span>
                   Output quality depends on the model you're using. For best results, use GPT-4o, Claude
                   Sonnet, or Gemini 1.5 Pro. Smaller or local models will still work but may produce simpler
@@ -254,8 +254,8 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
           {shareLink && (
             <div className="card flex flex-col gap-3">
               <div className="text-center">
-                <h3 className="text-lg sm:text-xl font-semibold text-ink">Shareable client link</h3>
-                <p className="mt-1 text-sm text-slate-400">Send this to your client — they don't need an account.</p>
+                <h3 className="text-2xl sm:text-3xl font-normal text-ink">Shareable client link</h3>
+                <p className="mt-1 text-sm text-muted">Send this to your client — they don't need an account.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
@@ -263,7 +263,7 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
                   readOnly
                   value={shareLink}
                   onFocus={(e) => e.target.select()}
-                  className="field-input flex-1 text-slate-300"
+                  className="field-input flex-1 text-ink"
                   aria-label="Client questionnaire link"
                 />
                 <button type="button" onClick={handleCopyLink} className="btn-primary flex-none">

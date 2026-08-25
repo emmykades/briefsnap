@@ -86,7 +86,7 @@ export default function QuestionCard({
             </select>
           </div>
           <div className="flex items-end pb-1">
-            <label className="flex items-center gap-2 text-sm text-slate-300">
+            <label className="flex items-center gap-2 text-sm text-ink">
               <input
                 type="checkbox"
                 checked={Boolean(draft.required)}
@@ -124,7 +124,7 @@ export default function QuestionCard({
             <button type="button" onClick={addOption} className="btn-secondary px-3 py-1.5 text-xs mt-1.5">
               + Add option
             </button>
-            <p className="mt-1.5 text-xs text-slate-500 italic">
+            <p className="mt-1.5 text-xs text-muted italic">
               An "Other" free-text option is always added automatically.
             </p>
           </div>
@@ -160,13 +160,13 @@ export default function QuestionCard({
   return (
     <li className="card py-4 sm:py-4">
       <div className="flex items-start gap-3">
-        <span className="flex-none w-6 h-6 rounded-full bg-accent/15 text-accent2 text-xs font-semibold flex items-center justify-center mt-0.5">
+        <span className="flex-none w-6 h-6 rounded-full bg-accent/10 text-accent text-xs font-semibold flex items-center justify-center mt-0.5">
           {index + 1}
         </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <p className="text-sm font-medium text-ink">
-              {question.question} {question.required && <span className="text-red-400">*</span>}
+              {question.question} {question.required && <span className="text-red-600">*</span>}
             </p>
             <div className="flex-none flex items-center gap-2">
               <div className="flex flex-col -my-1">
@@ -175,7 +175,7 @@ export default function QuestionCard({
                   onClick={onMoveUp}
                   disabled={!canMoveUp}
                   title="Move up"
-                  className="text-slate-500 hover:text-accent2 transition disabled:opacity-20 disabled:hover:text-slate-500"
+                  className="text-muted hover:text-accent transition disabled:opacity-20 disabled:hover:text-muted"
                 >
                   <ChevronUpIcon className="w-3.5 h-3.5" />
                 </button>
@@ -184,7 +184,7 @@ export default function QuestionCard({
                   onClick={onMoveDown}
                   disabled={!canMoveDown}
                   title="Move down"
-                  className="text-slate-500 hover:text-accent2 transition disabled:opacity-20 disabled:hover:text-slate-500"
+                  className="text-muted hover:text-accent transition disabled:opacity-20 disabled:hover:text-muted"
                 >
                   <ChevronDownIcon className="w-3.5 h-3.5" />
                 </button>
@@ -193,7 +193,7 @@ export default function QuestionCard({
                 type="button"
                 onClick={startEdit}
                 title="Edit question"
-                className="text-slate-500 hover:text-accent2 transition"
+                className="text-muted hover:text-accent transition"
               >
                 <PencilIcon className="w-4 h-4" />
               </button>
@@ -201,31 +201,31 @@ export default function QuestionCard({
                 type="button"
                 onClick={onDelete}
                 title="Remove question"
-                className="text-slate-500 hover:text-red-400 transition"
+                className="text-muted hover:text-red-600 transition"
               >
                 <TrashIcon className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <span className="inline-block mt-1.5 text-[11px] font-medium uppercase tracking-wide text-slate-400 bg-white/5 border border-white/10 rounded-full px-2 py-0.5">
+          <span className="inline-block mt-1.5 text-[11px] font-medium uppercase tracking-wide text-muted bg-canvas border border-line rounded-full px-2 py-0.5">
             {TYPE_LABELS[question.type] || question.type}
           </span>
           {CHOICE_TYPES.includes(question.type) && Array.isArray(question.options) && (
             <ul className="mt-2.5 flex flex-col gap-1.5">
               {question.options.map((opt, oi) => (
-                <li key={oi} className="text-sm text-slate-300 flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full border border-white/20 inline-block" />
+                <li key={oi} className="text-sm text-ink flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full border border-line inline-block" />
                   {opt}
                 </li>
               ))}
-              <li className="text-sm text-slate-500 italic flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full border border-white/20 inline-block" />
+              <li className="text-sm text-muted italic flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full border border-line inline-block" />
                 Other (free text)
               </li>
             </ul>
           )}
           {!CHOICE_TYPES.includes(question.type) && question.placeholder && (
-            <p className="mt-2 text-sm text-slate-500 italic">{question.placeholder}</p>
+            <p className="mt-2 text-sm text-muted italic">{question.placeholder}</p>
           )}
         </div>
       </div>

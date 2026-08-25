@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { buildShareUrl } from '../lib/hashEncoder';
-import { getTheme, themeGradientText, themePrimaryButtonStyle } from '../lib/themes';
+import { getTheme, themeTextStyle, themePrimaryButtonStyle } from '../lib/themes';
 import { CheckIcon } from './icons';
 
 export default function ClientForm({ niche, questions, formTitle, formIntro, theme }) {
@@ -75,18 +75,18 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-lg w-full card text-center flex flex-col gap-4">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700">
             <CheckIcon className="w-6 h-6" />
           </span>
-          <h1 className="text-2xl font-bold text-ink">Done!</h1>
-          <p className="text-slate-400">Copy the link below and send it back to your freelancer.</p>
+          <h1 className="text-4xl font-normal text-ink">Done!</h1>
+          <p className="text-muted">Copy the link below and send it back to your freelancer.</p>
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               readOnly
               value={shareUrl}
               onFocus={(e) => e.target.select()}
-              className="field-input flex-1 text-slate-300"
+              className="field-input flex-1 text-ink"
               aria-label="Answers link"
             />
             <button type="button" onClick={handleCopy} className="btn-primary" style={themePrimaryButtonStyle(t)}>
@@ -102,20 +102,17 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
     <div className="min-h-screen px-4 py-10 sm:py-14">
       <div className="max-w-2xl mx-auto flex flex-col gap-8">
         <div className="text-center">
-          <h1
-            className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent"
-            style={themeGradientText(t)}
-          >
+          <h1 className="text-4xl sm:text-5xl font-normal" style={themeTextStyle(t)}>
             {title}
           </h1>
-          <p className="mt-2 text-sm text-slate-400 whitespace-pre-wrap">{intro}</p>
-          <div className="mt-5 h-2 bg-white/5 border border-white/10 rounded-full overflow-hidden" aria-hidden="true">
+          <p className="mt-2 text-sm text-muted whitespace-pre-wrap">{intro}</p>
+          <div className="mt-5 h-2 bg-canvas border border-line rounded-full overflow-hidden" aria-hidden="true">
             <div
               className="h-full transition-all rounded-full"
-              style={{ width: `${progressPct}%`, ...themeGradientText(t) }}
+              style={{ width: `${progressPct}%`, backgroundColor: t.accent }}
             />
           </div>
-          <p className="mt-1.5 text-xs text-slate-500">{progressPct}% of required questions answered</p>
+          <p className="mt-1.5 text-xs text-muted">{progressPct}% of required questions answered</p>
         </div>
 
         <form
@@ -128,7 +125,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
           {questions.map((q, i) => (
             <div key={q.id || i} className="card py-5">
               <label htmlFor={q.id} className="field-label">
-                {i + 1}. {q.question} {q.required && <span className="text-red-400">*</span>}
+                {i + 1}. {q.question} {q.required && <span className="text-red-600">*</span>}
               </label>
               {q.type === 'short_text' && (
                 <input
@@ -157,7 +154,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
                   {q.options.map((opt, oi) => (
                     <label
                       key={oi}
-                      className="flex items-center gap-2 text-sm text-slate-300 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 cursor-pointer hover:bg-white/[0.06] transition"
+                      className="flex items-center gap-2 text-sm text-ink rounded-md border border-line bg-surface px-3 py-2 cursor-pointer hover:bg-canvas transition"
                     >
                       <input
                         type="radio"
@@ -175,7 +172,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
                       {opt}
                     </label>
                   ))}
-                  <label className="flex items-center gap-2 text-sm text-slate-300 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 cursor-pointer hover:bg-white/[0.06] transition">
+                  <label className="flex items-center gap-2 text-sm text-ink rounded-md border border-line bg-surface px-3 py-2 cursor-pointer hover:bg-canvas transition">
                     <input
                       type="radio"
                       name={q.id}
@@ -209,7 +206,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
                   {q.options.map((opt, oi) => (
                     <label
                       key={oi}
-                      className="flex items-center gap-2 text-sm text-slate-300 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 cursor-pointer hover:bg-white/[0.06] transition"
+                      className="flex items-center gap-2 text-sm text-ink rounded-md border border-line bg-surface px-3 py-2 cursor-pointer hover:bg-canvas transition"
                     >
                       <input
                         type="checkbox"
@@ -221,7 +218,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
                       {opt}
                     </label>
                   ))}
-                  <label className="flex items-center gap-2 text-sm text-slate-300 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 cursor-pointer hover:bg-white/[0.06] transition">
+                  <label className="flex items-center gap-2 text-sm text-ink rounded-md border border-line bg-surface px-3 py-2 cursor-pointer hover:bg-canvas transition">
                     <input
                       type="checkbox"
                       checked={Boolean(otherEnabled[q.id])}

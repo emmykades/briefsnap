@@ -10,7 +10,7 @@ export default function Toast({ message, onDismiss }) {
 
   return (
     <div
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/10 border border-white/15 backdrop-blur-xl text-ink text-sm font-medium px-4 py-2.5 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.4)] z-50 animate-fadeIn"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-ink text-white text-sm font-medium px-4 py-2.5 rounded-md shadow-lg z-50 animate-fadeIn"
       role="status"
       aria-live="polite"
     >

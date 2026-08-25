@@ -9,15 +9,15 @@ export default function QuickLinksNav({ items }) {
 
   return (
     <nav className="hidden lg:flex sticky top-6 card !p-3 flex-col gap-1" aria-label="Quick links">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 px-2 pb-1">On this page</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted px-2 pb-1">On this page</p>
       {items.map((item) => (
         <button
           key={item.id}
           type="button"
           onClick={() => jumpTo(item.id)}
           className={
-            'text-left text-sm hover:text-ink hover:bg-white/[0.06] rounded-lg py-1.5 transition truncate ' +
-            (item.indent ? 'pl-6 pr-2 text-xs text-slate-400' : 'px-2 text-slate-300')
+            'text-left text-sm hover:text-ink hover:bg-canvas rounded-md py-1.5 transition truncate ' +
+            (item.indent ? 'pl-6 pr-2 text-xs text-muted' : 'px-2 text-ink')
           }
         >
           {item.label}

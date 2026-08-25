@@ -2,19 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Gloria Hallelujah';
+  src: url('./assets/fonts/GloriaHallelujah-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Indie Flower';
+  src: url('./assets/fonts/IndieFlower-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Coming Soon';
+  src: url('./assets/fonts/ComingSoon-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 html {
-  color-scheme: dark;
+  color-scheme: light;
+  cursor: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'%3E%3Cpath d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z' fill='%2317181C' stroke='%23F7F5F0' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpath d='M12 20h9' stroke='%2317181C' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")
+    4 23,
+    auto;
 }
 
 body {
   @apply text-ink;
-  background-color: #05070c;
+  background-color: #f7f5f0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 30px,
+    rgba(23, 24, 28, 0.07) 30px,
+    rgba(23, 24, 28, 0.07) 31px
+  );
   min-height: 100vh;
 }
 
 @layer components {
   .card {
-    @apply bg-white/[0.04] border border-white/10 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl p-6 sm:p-8 transition-colors hover:border-white/[0.15];
+    @apply bg-surface border border-line rounded-lg shadow-sm p-6 sm:p-8 transition-colors;
   }
 
   .field-label {
@@ -22,13 +56,13 @@ body {
   }
 
   .field-input {
-    @apply w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1 text-sm text-ink placeholder:text-slate-500 shadow-inner transition focus:outline-none focus:ring-2 focus:ring-accent/60 focus:border-accent/60;
+    @apply w-full rounded-md border border-line bg-canvas px-3 py-1 text-sm text-ink placeholder:text-muted transition focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent;
   }
 
   select.field-input {
     appearance: none;
     -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B6A63'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.6rem center;
     background-size: 16px 16px;
@@ -36,26 +70,14 @@ body {
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-accent to-accent2 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_24px_-6px_rgba(91,127,255,0.7)] transition hover:shadow-[0_0_32px_-4px_rgba(91,127,255,0.85)] hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2 focus:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:brightness-100;
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 focus:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-accent;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-5 py-2.5 text-sm font-medium text-ink shadow-sm transition hover:border-white/20 hover:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2 focus:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line bg-surface px-5 py-2.5 text-sm font-medium text-ink transition hover:border-ink/30 hover:bg-canvas focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 focus:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-dark {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.08] px-5 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:bg-white/[0.14] focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2 focus:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-40;
-  }
-
-  .text-gradient {
-    @apply bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent;
-  }
-
-  .text-gradient-brand {
-    background-image: linear-gradient(90deg, #bfdbfe 0%, #60a5fa 30%, #3b82f6 55%, #4f46e5 80%, #60a5fa 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.5)) drop-shadow(0 4px 22px rgba(79, 70, 229, 0.35));
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-ink/10 bg-ink px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-ink/85 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 focus:ring-offset-canvas disabled:cursor-not-allowed disabled:opacity-40;
   }
 }

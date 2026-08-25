@@ -58,24 +58,21 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
       <div className="text-center">
-        <h1
-          className="font-display text-5xl sm:text-7xl font-black tracking-tight pb-2 text-gradient-brand"
-          style={{ lineHeight: 1.3, fontVariationSettings: '"opsz" 144, "SOFT" 0, "WONK" 1' }}
-        >
+        <h1 className="font-display text-6xl sm:text-8xl font-normal text-ink" style={{ lineHeight: 1.15 }}>
           BriefSnap
         </h1>
-        <p className="mt-6 text-sm sm:text-base font-medium text-accent2/90">
-          Turn messy client conversations into clean project briefs — in 60 seconds.
+        <p className="mt-4 text-sm sm:text-base font-medium text-ink">
+          Turn messy client conversations into clean project briefs in 60 seconds.
         </p>
-        <p className="mt-1.5 text-sm text-slate-500">
+        <p className="mt-1.5 text-sm text-muted">
           Use your own AI key. No subscriptions. No servers. Just better client briefs.
         </p>
       </div>
 
       <div className="card flex flex-col gap-5 p-6 sm:p-8">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h2 className="text-xl sm:text-2xl font-semibold text-ink">Connect your AI provider</h2>
-          <span className="text-xs font-medium text-slate-400 bg-white/5 border border-white/10 rounded-full px-2.5 py-1">
+          <h2 className="text-3xl sm:text-4xl font-normal text-ink">Connect your AI provider</h2>
+          <span className="text-xs font-medium text-muted bg-canvas border border-line rounded-full px-2.5 py-1">
             Bring your own key
           </span>
         </div>
@@ -90,8 +87,8 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
           />
         )}
 
-        <p className="flex items-start gap-2 text-xs text-slate-300 bg-accent/10 border border-accent/20 rounded-lg px-3 py-2 leading-snug">
-          <InfoIcon className="w-4 h-4 flex-none mt-0.5 text-accent2" />
+        <p className="flex items-start gap-2 text-xs text-ink bg-accent/5 border border-accent/20 rounded-md px-3 py-2 leading-snug">
+          <InfoIcon className="w-4 h-4 flex-none mt-0.5 text-accent" />
           <span>{providerInfo.recommendation}</span>
         </p>
 
@@ -134,7 +131,7 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
         </div>
 
         {testStatus === 'success' && (
-          <span className="inline-flex self-start items-center gap-1.5 text-sm font-medium text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-3 py-1">
+          <span className="inline-flex self-start items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
             <CheckIcon className="w-3.5 h-3.5" />
             Connected — {providerInfo.label} is ready
           </span>
@@ -142,9 +139,9 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
 
         {testStatus === 'testing' && <LoadingSpinner message="Testing connection..." />}
         {testStatus === 'error' && (
-          <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-lg p-3" role="alert">
-            <XIcon className="w-4 h-4 flex-none mt-0.5 text-red-400" />
-            <p className="text-sm text-red-300">{testError}</p>
+          <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-md p-3" role="alert">
+            <XIcon className="w-4 h-4 flex-none mt-0.5 text-red-600" />
+            <p className="text-sm text-red-700">{testError}</p>
           </div>
         )}
 

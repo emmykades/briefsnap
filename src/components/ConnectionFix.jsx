@@ -64,9 +64,9 @@ export default function ConnectionFix({ config, setConfig, onFixed }) {
 
       {status === 'testing' && <LoadingSpinner message="Testing connection..." />}
       {status === 'error' && (
-        <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-lg p-3" role="alert">
-          <XIcon className="w-4 h-4 flex-none mt-0.5 text-red-400" />
-          <p className="text-sm text-red-300">{error}</p>
+        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-md p-3" role="alert">
+          <XIcon className="w-4 h-4 flex-none mt-0.5 text-red-600" />
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
     </div>

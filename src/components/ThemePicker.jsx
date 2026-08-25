@@ -14,10 +14,10 @@ export default function ThemePicker({ value, onChange }) {
             aria-label={t.label}
             aria-pressed={value === t.id}
             className={
-              'w-8 h-8 rounded-full border-2 transition ' +
-              (value === t.id ? 'border-white scale-110' : 'border-white/20 hover:border-white/50')
+              'w-7 h-7 rounded-full border-2 transition ' +
+              (value === t.id ? 'border-ink scale-110' : 'border-line hover:border-ink/40')
             }
-            style={{ backgroundImage: `linear-gradient(135deg, ${t.accent}, ${t.accent2})` }}
+            style={{ backgroundColor: t.accent }}
           />
         ))}
       </div>

@@ -171,21 +171,21 @@ function FreelancerApp({ initialAnswersState }) {
         </div>
       </div>
 
-      <footer className="border-t border-white/10 px-4 py-6">
-        <p className="max-w-2xl mx-auto text-center text-xs text-slate-500">
+      <footer className="border-t border-line px-4 py-6">
+        <p className="max-w-2xl mx-auto text-center text-xs text-muted">
           BriefSnap has no server and no database — everything runs in your browser.{' '}
           <a
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-slate-400 underline hover:text-accent2"
+            className="text-ink underline hover:text-accent"
           >
             View source on GitHub
           </a>
         </p>
-        <p className="mt-1.5 max-w-2xl mx-auto text-center text-xs text-slate-500">
+        <p className="mt-1.5 max-w-2xl mx-auto text-center text-xs text-muted">
           Questions or ideas to make this better?{' '}
-          <a href="mailto:emmykades@gmail.com" className="text-slate-400 underline hover:text-accent2">
+          <a href="mailto:emmykades@gmail.com" className="text-ink underline hover:text-accent">
             emmykades@gmail.com
           </a>
         </p>

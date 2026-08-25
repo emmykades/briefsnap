@@ -25,7 +25,7 @@ export default function LoadAnswersCard({ onLoadAnswers }) {
 
   return (
     <div className="card flex flex-col items-center gap-4 text-center">
-      <label htmlFor="loadAnswers" className="text-lg sm:text-xl font-semibold text-ink">
+      <label htmlFor="loadAnswers" className="text-2xl sm:text-3xl font-normal text-ink">
         Already have client answers?
       </label>
       <div className="flex gap-2 w-full">
@@ -46,7 +46,7 @@ export default function LoadAnswersCard({ onLoadAnswers }) {
           Load
         </button>
       </div>
-      {loadLinkError && <p className="text-sm text-red-300">{loadLinkError}</p>}
+      {loadLinkError && <p className="text-sm text-red-700">{loadLinkError}</p>}
     </div>
   );
 }

@@ -192,16 +192,16 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
       <div className="w-full max-w-2xl flex flex-col gap-8">
         <div id="client-answers" className="card flex flex-col gap-4">
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl font-semibold text-ink">Review client answers</h2>
-            <p className="mt-1 text-sm text-slate-400">Check the responses below before generating the brief.</p>
+            <h2 className="text-3xl sm:text-4xl font-normal text-ink">Review client answers</h2>
+            <p className="mt-1 text-sm text-muted">Check the responses below before generating the brief.</p>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
+          <div className="overflow-hidden rounded-lg border border-line bg-canvas">
             <table className="w-full text-sm text-left">
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-line">
                 {questions.map((q, i) => (
                   <tr key={q.id || i}>
                     <td className="p-3.5 align-top font-medium text-ink w-1/2">{q.question}</td>
-                    <td className="p-3.5 align-top text-slate-300">
+                    <td className="p-3.5 align-top text-ink">
                       {editingAnswerId === q.id ? (
                         <div className="flex flex-col gap-2">
                           <textarea
@@ -235,7 +235,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
                             type="button"
                             onClick={() => startEditAnswer(q.id)}
                             title="Edit answer"
-                            className="flex-none text-slate-500 hover:text-accent2 transition"
+                            className="flex-none text-muted hover:text-accent transition"
                           >
                             <PencilIcon className="w-3.5 h-3.5" />
                           </button>
@@ -247,7 +247,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
               </tbody>
             </table>
           </div>
-          <div className="border-t border-white/10 pt-4 flex flex-wrap justify-center gap-3">
+          <div className="border-t border-line pt-4 flex flex-wrap justify-center gap-3">
             <button type="button" onClick={downloadAnswers} className="btn-secondary">
               Download answers
             </button>
@@ -274,7 +274,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
         {briefStatus === 'success' && (
           <div className="flex flex-col gap-6">
             <div className="card flex flex-col gap-4">
-              <h2 id="client-brief" className="text-lg sm:text-xl font-semibold text-ink text-center">
+              <h2 id="client-brief" className="text-3xl sm:text-4xl font-normal text-ink text-center">
                 Client Brief
               </h2>
 
@@ -304,14 +304,14 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
                         id={`section-${section.title ? slugify(section.title) : i}`}
                         className="card border-l-2 border-l-accent py-4 sm:py-5"
                       >
-                        {section.title && <h3 className="text-sm font-semibold text-ink mb-2">{section.title}</h3>}
-                        <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">{section.body}</p>
+                        {section.title && <h3 className="text-2xl font-normal text-ink mb-1">{section.title}</h3>}
+                        <p className="text-sm text-ink whitespace-pre-wrap leading-relaxed">{section.body}</p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="border-t border-white/10 pt-4 flex flex-col gap-3">
-                    <h3 className="text-lg sm:text-xl font-semibold text-ink text-center">Customize this brief</h3>
+                  <div className="border-t border-line pt-4 flex flex-col gap-3">
+                    <h3 className="text-3xl font-normal text-ink text-center">Customize this brief</h3>
 
                     <div>
                       <label htmlFor="briefLinkTitle" className="field-label">
@@ -343,7 +343,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
                     <ThemePicker value={briefLinkTheme} onChange={setBriefLinkTheme} />
 
                     {agendaStatus === 'success' && (
-                      <label className="flex items-center gap-2 text-sm text-slate-300">
+                      <label className="flex items-center gap-2 text-sm text-ink">
                         <input
                           type="checkbox"
                           checked={includeAgenda}
@@ -355,7 +355,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
                     )}
                   </div>
 
-                  <div className="border-t border-white/10 pt-4 flex flex-wrap justify-center gap-3">
+                  <div className="border-t border-line pt-4 flex flex-wrap justify-center gap-3">
                     <button type="button" onClick={() => copyText(briefText)} className="btn-secondary">
                       Copy brief
                     </button>
@@ -391,8 +391,8 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
               </div>
             )}
             {agendaStatus === 'success' && (
-              <div id="kickoff-agenda" className="card border-l-2 border-l-accent2 flex flex-col gap-3">
-                <h3 className="text-sm font-semibold text-ink">Kickoff Call Agenda</h3>
+              <div id="kickoff-agenda" className="card border-l-2 border-l-accent flex flex-col gap-3">
+                <h3 className="text-2xl font-normal text-ink">Kickoff Call Agenda</h3>
                 {editingAgenda ? (
                   <>
                     <textarea
@@ -412,7 +412,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">{agendaText}</p>
+                    <p className="text-sm text-ink whitespace-pre-wrap leading-relaxed">{agendaText}</p>
                     <div className="flex flex-wrap gap-2 self-start">
                       <button type="button" onClick={() => copyText(agendaText)} className="btn-secondary">
                         Copy agenda

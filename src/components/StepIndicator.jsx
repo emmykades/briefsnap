@@ -20,18 +20,18 @@ export default function StepIndicator({ currentStep, canJump, onStepClick }) {
               type={clickable ? 'button' : undefined}
               onClick={clickable ? () => onStepClick(stepNumber) : undefined}
               className={
-                'flex flex-col items-center gap-1.5 rounded-lg py-1 px-1.5 -mx-1.5 transition ' +
-                (clickable ? 'cursor-pointer hover:bg-white/[0.06]' : 'cursor-default')
+                'flex flex-col items-center gap-1.5 rounded-md py-1 px-1.5 -mx-1.5 transition ' +
+                (clickable ? 'cursor-pointer hover:bg-canvas' : 'cursor-default')
               }
             >
               <div
                 className={
                   'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ' +
                   (isComplete
-                    ? 'bg-gradient-to-br from-accent to-accent2 text-white shadow-[0_0_16px_-2px_rgba(91,127,255,0.8)]'
+                    ? 'bg-accent text-white'
                     : isCurrent
-                    ? 'bg-gradient-to-br from-accent to-accent2 text-white shadow-[0_0_16px_-2px_rgba(91,127,255,0.8)] animate-glowPulse'
-                    : 'bg-white/[0.04] text-slate-500 border border-white/10')
+                    ? 'bg-accent text-white ring-2 ring-accent/25 ring-offset-2 ring-offset-canvas'
+                    : 'bg-surface text-muted border border-line')
                 }
                 aria-current={isCurrent ? 'step' : undefined}
               >
@@ -39,7 +39,7 @@ export default function StepIndicator({ currentStep, canJump, onStepClick }) {
               </div>
               <span
                 className={
-                  'text-xs whitespace-nowrap ' + (isCurrent ? 'text-ink font-semibold' : 'text-slate-500')
+                  'text-xs whitespace-nowrap ' + (isCurrent ? 'text-ink font-semibold' : 'text-muted')
                 }
               >
                 {label}
@@ -47,10 +47,7 @@ export default function StepIndicator({ currentStep, canJump, onStepClick }) {
             </Tag>
             {index !== STEPS.length - 1 && (
               <div
-                className={
-                  'flex-1 h-px mx-2 rounded-full ' +
-                  (isComplete ? 'bg-gradient-to-r from-accent to-accent2' : 'bg-white/10')
-                }
+                className={'flex-1 h-px mx-2 rounded-full ' + (isComplete ? 'bg-accent' : 'bg-line')}
               />
             )}
           </li>
