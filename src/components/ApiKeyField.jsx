@@ -1,20 +1,27 @@
 import { useState } from 'react';
 import { EyeIcon, EyeOffIcon } from './icons';
 
-export default function ApiKeyField({ apiKey, placeholder, onChange }) {
+export default function ApiKeyField({
+  id = 'apiKey',
+  label = 'Your API key',
+  note = 'Never stored or shared',
+  apiKey,
+  placeholder,
+  onChange,
+}) {
   const [showApiKey, setShowApiKey] = useState(false);
 
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label htmlFor="apiKey" className="field-label mb-0">
-          Your API key
+        <label htmlFor={id} className="field-label mb-0">
+          {label}
         </label>
-        <span className="text-xs font-medium text-red-600">Never stored or shared</span>
+        <span className="text-xs font-medium text-red-600">{note}</span>
       </div>
       <div className="relative">
         <input
-          id="apiKey"
+          id={id}
           type={showApiKey ? 'text' : 'password'}
           autoComplete="off"
           value={apiKey}

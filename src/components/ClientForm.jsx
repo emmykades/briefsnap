@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { buildShareUrl } from '../lib/hashEncoder';
+import { copyAndOpenTinyUrlShortener } from '../lib/tinyUrl';
 import { getTheme, themeTextStyle, themePrimaryButtonStyle } from '../lib/themes';
 import { CheckIcon } from './icons';
 
@@ -71,6 +72,10 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
     }
   }
 
+  function handleGetShortLink() {
+    copyAndOpenTinyUrlShortener(shareUrl);
+  }
+
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -91,6 +96,14 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
             />
             <button type="button" onClick={handleCopy} className="btn-primary" style={themePrimaryButtonStyle(t)}>
               {copied ? 'Copied!' : 'Copy link'}
+            </button>
+            <button
+              type="button"
+              onClick={handleGetShortLink}
+              title="Copies this link, then opens TinyURL to shorten it"
+              className="btn-secondary"
+            >
+              Get short link ↗
             </button>
           </div>
         </div>

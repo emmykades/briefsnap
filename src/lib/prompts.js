@@ -1,3 +1,5 @@
+import { BRIEF_SECTIONS } from './brief';
+
 export const TEST_CONNECTION_MESSAGE = 'Reply with the word OK and nothing else.';
 
 export function questionnaireSystemPrompt(niche, questionCount = 12, additionalInfo = '') {
@@ -29,45 +31,23 @@ Each object must have exactly these fields:
 Use "multiple_choice" when the client should pick exactly one option (e.g. budget range). Use "checkboxes" when more than one selection could reasonably apply (e.g. which deliverables are needed). Do not add your own "Other" option to any options array — the form adds one automatically with a free-text field.`;
 }
 
-export function briefSystemPrompt(niche, formattedQA) {
+// sections: [{ title, description }] — description says what that section should
+// cover. Pass the standard BRIEF_SECTIONS entries and/or freelancer-defined custom
+// ones (title + a plain-English description of what the AI should write there).
+export function briefSystemPrompt(niche, formattedQA, sections) {
+  const sectionsToUse = Array.isArray(sections) && sections.length ? sections : BRIEF_SECTIONS;
+  const sectionList = sectionsToUse.map((s, i) => `${i + 1}. ${s.title}\n   ${s.description}`).join('\n\n');
+
   return `You are a senior project manager producing a formal project brief for a freelancer.
 Below are the client's answers to an intake questionnaire for a ${niche} project.
 
 Questions and answers:
 ${formattedQA}
 
-Produce a complete, professional project brief with exactly these 10 sections.
+Produce a complete, professional project brief with exactly these ${sectionsToUse.length} sections.
 Use the client's actual words and specifics — do not be generic.
 
-1. Project Overview
-   A 2–3 sentence executive summary of the project.
-
-2. Goals and Success Metrics
-   Bulleted list. Each goal should be specific and measurable where possible.
-
-3. Target Audience
-   Who the end product is for. Be specific using the client's words.
-
-4. Scope of Work
-   Bulleted list of all deliverables explicitly or implicitly mentioned.
-
-5. Suggested Timeline
-   Break the project into phases with rough time estimates per phase.
-
-6. Budget
-   State the client's stated budget range. Flag if it seems misaligned with scope.
-
-7. Existing Assets and Resources
-   What the client already has that the freelancer can use.
-
-8. Approval Process
-   Who signs off, how many revision rounds are implied, decision-making structure.
-
-9. Red Flags and Risks
-   Be direct. List anything in the answers that could cause problems: vague goals, unrealistic timelines, budget mismatches, unclear ownership, scope creep signals. If nothing concerning, write "None identified."
-
-10. Recommended Next Steps
-    Exactly 3 concrete actions the freelancer should take immediately after reading this brief.
+${sectionList}
 
 Format each section with a clear heading. Use plain text, not markdown symbols.
 Write in third person (referring to "the client"). Be specific, not generic.`;

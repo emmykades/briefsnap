@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { sendMessage } from '../lib/apiRouter';
 import { questionnaireSystemPrompt } from '../lib/prompts';
 import { buildShareUrl } from '../lib/hashEncoder';
+import { copyAndOpenTinyUrlShortener } from '../lib/tinyUrl';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import LoadAnswersCard from './LoadAnswersCard';
@@ -99,6 +100,10 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
     }
     setShareLink(shareUrl);
     onShareLinkCopied(shareUrl);
+  }
+
+  function handleGetShortLink() {
+    copyAndOpenTinyUrlShortener(shareLink);
   }
 
   async function handleCopyLink() {
@@ -268,6 +273,14 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
                 />
                 <button type="button" onClick={handleCopyLink} className="btn-primary flex-none">
                   {linkCopied ? 'Copied!' : 'Copy link'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGetShortLink}
+                  title="Copies this link, then opens TinyURL to shorten it"
+                  className="btn-secondary flex-none"
+                >
+                  Get short link ↗
                 </button>
               </div>
             </div>
