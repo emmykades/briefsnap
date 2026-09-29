@@ -17,6 +17,8 @@ Produce exactly ${questionCount} questions. Cover these areas, combining or drop
 9. Definition of success
 10. Known constraints, concerns, or red flags
 ${additionalInfo.trim() ? `\nThe freelancer also gave this additional guidance for the questionnaire — prioritize it:\n"""\n${additionalInfo.trim()}\n"""\n` : ''}
+Most clients cannot describe what they want, but they can easily react to concrete examples. So wherever the answer is a matter of taste, style, tone, direction or approach (look and feel, brand personality, how formal or playful, layout or feature priorities, reference styles), do NOT ask an open-ended question. Instead write a "multiple_choice" question with exactly 3 concrete, clearly different options the client can react to. Each option must be specific and vivid (for example "Warm and friendly: rounded shapes, soft colors, casual wording") rather than generic (for example "Modern"). Use plain text or the other choice types only for factual details a client must simply state (name, deadline, budget, existing assets, who approves). Aim for roughly half of the questions to be 3-option reaction questions.
+
 Return ONLY a valid JSON array. No markdown, no explanation, no code fences.
 Each object must have exactly these fields:
 {
@@ -28,7 +30,7 @@ Each object must have exactly these fields:
   "placeholder": "e.g. ..." (a concrete example answer to show as placeholder, omit for multiple_choice/checkboxes)
 }
 
-Use "multiple_choice" when the client should pick exactly one option (e.g. budget range). Use "checkboxes" when more than one selection could reasonably apply (e.g. which deliverables are needed). Do not add your own "Other" option to any options array — the form adds one automatically with a free-text field.`;
+Use "multiple_choice" when the client should pick exactly one option (e.g. budget range). Use "checkboxes" when more than one selection could reasonably apply (e.g. which deliverables are needed). Do not add your own "Other" option to any options array — the form adds one automatically with a free-text field, and every choice question also lets the client add extra detail if they already know exactly what they want.`;
 }
 
 // sections: [{ title, description }] — description says what that section should

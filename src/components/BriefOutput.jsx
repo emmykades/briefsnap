@@ -3,7 +3,6 @@ import { sendMessage } from '../lib/apiRouter';
 import { briefSystemPrompt, kickoffAgendaPrompt } from '../lib/prompts';
 import { BRIEF_SECTIONS, splitSections, formatAnswer, slugify, stripMarkdownBold } from '../lib/brief';
 import { buildShareUrl } from '../lib/hashEncoder';
-import { copyAndOpenTinyUrlShortener } from '../lib/tinyUrl';
 import { DEFAULT_THEME_ID } from '../lib/themes';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
@@ -248,7 +247,7 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
     const finalBriefText = visibleSections.length
       ? visibleSections.map((s) => (s.title ? `${s.title}\n${s.body}` : s.body)).join('\n\n')
       : briefText;
-    const shareUrl = buildShareUrl({
+    const shareUrl = await buildShareUrl({
       v: 1,
       type: 'brief',
       niche,
@@ -275,10 +274,6 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
     } catch {
       // clipboard may be unavailable; the URL is still visible for manual copy
     }
-  }
-
-  function handleGetBriefShortLink() {
-    copyAndOpenTinyUrlShortener(briefShareLink);
   }
 
   async function copyText(text) {
@@ -347,7 +342,14 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
                         </div>
                       ) : (
                         <div className="flex items-start justify-between gap-2">
-                          <span className="whitespace-pre-wrap">{formatAnswer(answers[q.id]) || '—'}</span>
+                          <div>
+                            <span className="whitespace-pre-wrap">{formatAnswer(answers[q.id]) || '—'}</span>
+                          {answers[`${q.id}__extra`] && (
+                            <span className="block mt-1 text-xs text-muted whitespace-pre-wrap">
+                              Client's own details: {answers[`${q.id}__extra`]}
+                            </span>
+                          )}
+                          </div>
                           <button
                             type="button"
                             onClick={() => startEditAnswer(q.id)}
@@ -693,14 +695,6 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
             />
             <button type="button" onClick={handleCopyBriefLink} className="btn-primary flex-none">
               {briefLinkCopied ? 'Copied!' : 'Copy link'}
-            </button>
-            <button
-              type="button"
-              onClick={handleGetBriefShortLink}
-              title="Copies this link, then opens TinyURL to shorten it"
-              className="btn-secondary flex-none"
-            >
-              Get short link ↗
             </button>
           </div>
         </div>

@@ -1,45 +1,48 @@
 // Encodes/decodes app state into the URL hash so BriefSnap can pass a
-// questionnaire (and later, client answers) between browsers with no backend.
-// Shape: { v: 1, type: 'questionnaire' | 'answers', niche, questions, answers? }
+// questionnaire, client answers or a brief between browsers with no backend.
+// State is JSON, deflate-compressed, then base64url: as short as a link with
+// no server can be. Encrypted answers use their own `e=` param (see crypto.js).
+// Shape: { v, type: 'questionnaire' | 'answers' | 'brief', ... }
+import { packBytes, unpackBytes, bytesToB64u, b64uToBytes } from './compress';
 
-function base64UrlEncode(str) {
-  const base64 = btoa(unescape(encodeURIComponent(str)));
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+export async function encodeState(state) {
+  return bytesToB64u(await packBytes(encoder.encode(JSON.stringify(state))));
 }
 
-function base64UrlDecode(str) {
-  const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
-  return decodeURIComponent(escape(atob(padded)));
-}
-
-export function encodeState(state) {
-  const json = JSON.stringify(state);
-  return base64UrlEncode(json);
-}
-
-export function decodeState(encoded) {
+export async function decodeState(encoded) {
   try {
-    const json = base64UrlDecode(encoded);
-    return JSON.parse(json);
+    return JSON.parse(decoder.decode(await unpackBytes(b64uToBytes(encoded))));
   } catch {
     return null;
   }
 }
 
-export function readStateFromHash() {
-  const hash = window.location.hash.startsWith('#')
-    ? window.location.hash.slice(1)
-    : window.location.hash;
-  const params = new URLSearchParams(hash);
-  const s = params.get('s');
-  if (!s) return null;
-  return decodeState(s);
+// Reads a URL hash (with or without the leading '#'). Returns null if empty
+// or unreadable; encrypted answers come back as { type: 'answers', enc }.
+export async function parseHashState(hash) {
+  const params = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
+  const e = params.get('e');
+  if (e) return { v: 2, type: 'answers', enc: e };
+  const legacy = params.get('s'); // plain base64 JSON from before compression
+  if (legacy) {
+    try {
+      const b64 = legacy.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(escape(atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4)))));
+    } catch {
+      return null;
+    }
+  }
+  const z = params.get('z');
+  if (z) return decodeState(z);
+  return null;
 }
 
-export function buildShareUrl(state) {
-  const encoded = encodeState(state);
+export async function buildShareUrl(state) {
   const url = new URL(window.location.href);
-  url.hash = `s=${encoded}`;
+  url.search = ''; // never carry the freelancer's access key into a client link
+  url.hash = state.enc ? `e=${state.enc}` : `z=${await encodeState(state)}`;
   return url.toString();
 }

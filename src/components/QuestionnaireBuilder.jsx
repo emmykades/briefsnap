@@ -3,6 +3,7 @@ import { sendMessage } from '../lib/apiRouter';
 import { questionnaireSystemPrompt } from '../lib/prompts';
 import { buildShareUrl } from '../lib/hashEncoder';
 import { copyAndOpenTinyUrlShortener } from '../lib/tinyUrl';
+import { getOrCreateKeyPair } from '../lib/crypto';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import LoadAnswersCard from './LoadAnswersCard';
@@ -84,9 +85,11 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
   }
 
   async function handleCreateLink() {
-    const shareUrl = buildShareUrl({
+    const { publicKey } = await getOrCreateKeyPair();
+    const shareUrl = await buildShareUrl({
       v: 1,
       type: 'questionnaire',
+      pk: publicKey,
       niche,
       questions,
       formTitle: formTitle?.trim() || defaultFormTitle,
@@ -277,7 +280,7 @@ export default function QuestionnaireBuilder({ config, questions, setQuestions, 
                 <button
                   type="button"
                   onClick={handleGetShortLink}
-                  title="Copies this link, then opens TinyURL to shorten it"
+                  title="Copies this link, then opens TinyURL to shorten it. Safe here: this link holds only your questions and a public key, never client answers."
                   className="btn-secondary flex-none"
                 >
                   Get short link ↗

@@ -5,6 +5,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ProviderModelSelect from './ProviderModelSelect';
 import ApiKeyField from './ApiKeyField';
 import LoadAnswersCard from './LoadAnswersCard';
+import KeyBackupCard from './KeyBackupCard';
 import { InfoIcon, CheckIcon, XIcon } from './icons';
 
 const NICHES = [
@@ -158,6 +159,7 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
       </div>
 
       <LoadAnswersCard onLoadAnswers={onLoadAnswers} />
+      <KeyBackupCard />
     </div>
   );
 }

@@ -1,24 +1,30 @@
 import { useState } from 'react';
-import { decodeState } from '../lib/hashEncoder';
+import { parseHashState } from '../lib/hashEncoder';
+import { resolveAnswersState } from '../lib/crypto';
 
 export default function LoadAnswersCard({ onLoadAnswers }) {
   const [loadLinkInput, setLoadLinkInput] = useState('');
   const [loadLinkError, setLoadLinkError] = useState('');
 
-  function handleLoadAnswersLink() {
+  async function handleLoadAnswersLink() {
     setLoadLinkError('');
     try {
       const url = new URL(loadLinkInput.trim());
-      const hash = url.hash.startsWith('#') ? url.hash.slice(1) : url.hash;
-      const params = new URLSearchParams(hash);
-      const s = params.get('s');
-      const state = s ? decodeState(s) : null;
+      const state = await parseHashState(url.hash);
       if (!state || state.type !== 'answers') {
         setLoadLinkError('That link does not contain client answers. Paste the exact link your client sent back.');
         return;
       }
-      onLoadAnswers(state);
-    } catch {
+      onLoadAnswers(await resolveAnswersState(state));
+    } catch (err) {
+      if (err.message === 'NO_KEY') {
+        setLoadLinkError('This link is encrypted and there is no key on this device. Restore your key backup first.');
+        return;
+      }
+      if (err.message === 'WRONG_KEY') {
+        setLoadLinkError('This link was not encrypted for the key on this device. Restore the key backup that matches the link you sent.');
+        return;
+      }
       setLoadLinkError('That does not look like a valid link. Paste the full URL your client sent back.');
     }
   }

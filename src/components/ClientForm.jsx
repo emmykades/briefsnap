@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { buildShareUrl } from '../lib/hashEncoder';
-import { copyAndOpenTinyUrlShortener } from '../lib/tinyUrl';
+import { encryptAnswers } from '../lib/crypto';
 import { getTheme, themeTextStyle, themePrimaryButtonStyle } from '../lib/themes';
 import { CheckIcon } from './icons';
 
-export default function ClientForm({ niche, questions, formTitle, formIntro, theme }) {
+export default function ClientForm({ niche, questions, formTitle, formIntro, theme, publicKey }) {
   const t = getTheme(theme);
   const title = formTitle?.trim() || `${niche} Project — Client Questionnaire`;
   const intro =
@@ -14,6 +14,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
   const [answers, setAnswers] = useState({});
   const [otherEnabled, setOtherEnabled] = useState({});
   const [otherText, setOtherText] = useState({});
+  const [extraOpen, setExtraOpen] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -52,15 +53,41 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
     : 100;
   const canSubmit = answeredRequiredCount === requiredQuestions.length;
 
-  const shareUrl = useMemo(() => {
-    if (!submitted) return '';
+  const [shareUrl, setShareUrl] = useState('');
+  const [encryptError, setEncryptError] = useState(false);
+
+  // The answers link is encrypted to the freelancer's public key before it is
+  // ever shown, so only their private key can open it. Links made before
+  // encryption existed carry no key and fall back to plain answers.
+  useEffect(() => {
+    if (!submitted) return;
+    let cancelled = false;
     const finalAnswers = {};
     questions.forEach((q) => {
       finalAnswers[q.id] = getEffectiveAnswer(q);
+      const extra = (answers[`${q.id}__extra`] || '').trim();
+      if (extra) finalAnswers[`${q.id}__extra`] = extra;
     });
-    return buildShareUrl({ v: 1, type: 'answers', niche, questions, answers: finalAnswers, theme });
+    const data = { niche, questions, answers: finalAnswers, theme };
+    (async () => {
+      try {
+        if (!publicKey) {
+          const url = await buildShareUrl({ v: 1, type: 'answers', ...data });
+          if (!cancelled) setShareUrl(url);
+          return;
+        }
+        const enc = await encryptAnswers(publicKey, data);
+        const url = await buildShareUrl({ v: 2, type: 'answers', enc });
+        if (!cancelled) setShareUrl(url);
+      } catch {
+        if (!cancelled) setEncryptError(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [submitted, niche, questions, answers, otherEnabled, otherText, theme]);
+  }, [submitted]);
 
   async function handleCopy() {
     try {
@@ -72,10 +99,6 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
     }
   }
 
-  function handleGetShortLink() {
-    copyAndOpenTinyUrlShortener(shareUrl);
-  }
-
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -85,25 +108,24 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
           </span>
           <h1 className="text-4xl font-normal text-ink">Done!</h1>
           <p className="text-muted">Copy the link below and send it back to your freelancer.</p>
+          <p className="text-xs text-muted">
+            {publicKey
+              ? 'Your answers are encrypted in your browser. Only your freelancer can open this link.'
+              : 'This link was made with an older version of BriefSnap, so the answers in it are not encrypted.'}
+          </p>
+          {encryptError && <p className="text-sm text-red-700">Could not encrypt your answers in this browser. Try a different browser.</p>}
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               readOnly
               value={shareUrl}
+              placeholder={encryptError ? '' : 'Encrypting…'}
               onFocus={(e) => e.target.select()}
               className="field-input flex-1 text-ink"
               aria-label="Answers link"
             />
-            <button type="button" onClick={handleCopy} className="btn-primary" style={themePrimaryButtonStyle(t)}>
+            <button type="button" onClick={handleCopy} disabled={!shareUrl} className="btn-primary" style={themePrimaryButtonStyle(t)}>
               {copied ? 'Copied!' : 'Copy link'}
-            </button>
-            <button
-              type="button"
-              onClick={handleGetShortLink}
-              title="Copies this link, then opens TinyURL to shorten it"
-              className="btn-secondary"
-            >
-              Get short link ↗
             </button>
           </div>
         </div>
@@ -249,6 +271,29 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
                       onChange={(e) => setOtherText((prev) => ({ ...prev, [q.id]: e.target.value }))}
                       className="field-input"
                     />
+                  )}
+                </div>
+              )}
+              {(q.type === 'multiple_choice' || q.type === 'checkboxes') && (
+                <div className="mt-3">
+                  {extraOpen[q.id] ? (
+                    <textarea
+                      rows={2}
+                      autoFocus
+                      placeholder="Already know exactly what you want? Add any details here (optional)"
+                      value={answers[`${q.id}__extra`] || ''}
+                      onChange={(e) => setAnswer(`${q.id}__extra`, e.target.value)}
+                      className="field-input text-sm"
+                      aria-label={`Extra details for question ${i + 1}`}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setExtraOpen((prev) => ({ ...prev, [q.id]: true }))}
+                      className="text-xs text-muted underline hover:text-ink"
+                    >
+                      {answers[`${q.id}__extra`] ? 'Edit your details' : 'I know what I want: add details'}
+                    </button>
                   )}
                 </div>
               )}

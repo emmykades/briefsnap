@@ -17,6 +17,23 @@ take that on faith: read [`src/lib/apiRouter.js`](src/lib/apiRouter.js) and
 the key lives only in React state for the duration of your session and is
 never logged, persisted, or sent anywhere but the provider's own API.
 
+## How client answers are protected
+
+- Your questionnaire link carries only your **public** key. The matching private
+  key is created in your browser and stays on your device (see
+  [`src/lib/crypto.js`](src/lib/crypto.js)).
+- When a client submits, their browser encrypts the answers (ECDH P-256 +
+  AES-GCM) before a link is ever shown. The link they send back is ciphertext;
+  anyone who intercepts it, or sees it in chat previews or browser history,
+  cannot read it.
+- When you open the link, your browser decrypts it locally. If you then use AI
+  to write the brief, the decrypted answers go straight from your browser to the
+  AI provider you chose, using your own API key. BriefSnap never sees them.
+- Back up your key from the first screen. Without it, encrypted answers cannot
+  be opened by anyone.
+- Link shortening is offered only for the questionnaire link (questions and a
+  public key), never for links that contain answers or briefs.
+
 ## Get BriefSnap
 
 This repository is published for source-code transparency and security

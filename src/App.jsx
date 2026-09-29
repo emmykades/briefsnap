@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { PROVIDERS } from './lib/apiRouter';
-import { readStateFromHash } from './lib/hashEncoder';
+import { parseHashState } from './lib/hashEncoder';
 import { GITHUB_URL } from './lib/constants';
 import { checkAccess } from './lib/access';
+import { resolveAnswersState } from './lib/crypto';
 import Background from './components/Background';
 import StepIndicator from './components/StepIndicator';
 import Setup from './components/Setup';
@@ -23,15 +24,24 @@ const DEFAULT_CONFIG = {
 };
 
 export default function App() {
-  const [hashState, setHashState] = useState(() => readStateFromHash());
+  const [hashState, setHashState] = useState(null);
+  const [hashReady, setHashReady] = useState(false);
 
   useEffect(() => {
-    function onHashChange() {
-      setHashState(readStateFromHash());
+    let latest = 0;
+    async function load() {
+      const id = ++latest;
+      const state = await parseHashState(window.location.hash);
+      if (id !== latest) return;
+      setHashState(state);
+      setHashReady(true);
     }
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    load();
+    window.addEventListener('hashchange', load);
+    return () => window.removeEventListener('hashchange', load);
   }, []);
+
+  if (!hashReady) return <Background />;
 
   // Client is filling out the questionnaire — bare form, no BriefSnap chrome.
   if (hashState && hashState.type === 'questionnaire') {
@@ -44,6 +54,7 @@ export default function App() {
           formTitle={hashState.formTitle}
           formIntro={hashState.formIntro}
           theme={hashState.theme}
+          publicKey={hashState.pk}
         />
       </>
     );
@@ -86,10 +97,14 @@ export default function App() {
 }
 
 function FreelancerApp({ initialAnswersState }) {
-  const [step, setStep] = useState(initialAnswersState ? 4 : 1);
+  // Encrypted answers links carry ciphertext only; they open once decrypted
+  // with the private key stored on this device.
+  const encryptedInitial = Boolean(initialAnswersState && initialAnswersState.enc);
+  const plainInitial = encryptedInitial ? null : initialAnswersState;
+  const [step, setStep] = useState(plainInitial ? 4 : 1);
   const [config, setConfig] = useState(DEFAULT_CONFIG);
-  const [questions, setQuestions] = useState(initialAnswersState ? initialAnswersState.questions : null);
-  const [answersState, setAnswersState] = useState(initialAnswersState);
+  const [questions, setQuestions] = useState(plainInitial ? plainInitial.questions : null);
+  const [answersState, setAnswersState] = useState(plainInitial);
   const [questionnaireOptions, setQuestionnaireOptions] = useState({
     count: 12,
     additionalInfo: '',
@@ -102,6 +117,24 @@ function FreelancerApp({ initialAnswersState }) {
   function showToast(message) {
     setToastMessage(message);
   }
+
+  useEffect(() => {
+    if (!encryptedInitial) return;
+    resolveAnswersState(initialAnswersState)
+      .then((state) => {
+        setQuestions(state.questions);
+        setAnswersState(state);
+        setStep(4);
+      })
+      .catch((err) => {
+        showToast(
+          err.message === 'NO_KEY'
+            ? 'This answers link is encrypted and this device has no key. Restore your key backup, then paste the link again.'
+            : 'This answers link was not encrypted for the key on this device. Restore the matching key backup.'
+        );
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleConnected() {
     setStep(2);
@@ -173,7 +206,8 @@ function FreelancerApp({ initialAnswersState }) {
 
       <footer className="border-t border-line px-4 py-6">
         <p className="max-w-2xl mx-auto text-center text-xs text-muted">
-          BriefSnap has no server and no database — everything runs in your browser.{' '}
+          BriefSnap has no server and no database. Client answers are encrypted in your client's browser and only your
+          private key, kept on this device, can open them.{' '}
           <a
             href={GITHUB_URL}
             target="_blank"
