@@ -6,6 +6,8 @@ import ProviderModelSelect from './ProviderModelSelect';
 import ApiKeyField from './ApiKeyField';
 import LoadAnswersCard from './LoadAnswersCard';
 import KeyBackupCard from './KeyBackupCard';
+import PrivacyCard from './PrivacyCard';
+import { GITHUB_URL } from '../lib/constants';
 import { InfoIcon, CheckIcon, XIcon } from './icons';
 
 const NICHES = [
@@ -158,6 +160,7 @@ export default function Setup({ config, setConfig, onConnected, onLoadAnswers })
         </div>
       </div>
 
+      <PrivacyCard sourceUrl={GITHUB_URL} />
       <LoadAnswersCard onLoadAnswers={onLoadAnswers} />
       <KeyBackupCard />
     </div>
