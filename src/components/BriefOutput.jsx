@@ -3,6 +3,7 @@ import { sendMessage } from '../lib/apiRouter';
 import { briefSystemPrompt, kickoffAgendaPrompt } from '../lib/prompts';
 import { BRIEF_SECTIONS, splitSections, formatAnswer, slugify, stripMarkdownBold } from '../lib/brief';
 import { buildShareUrl } from '../lib/hashEncoder';
+import { downloadTextFile } from '../lib/download';
 import { DEFAULT_THEME_ID } from '../lib/themes';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
@@ -19,18 +20,6 @@ function formatQA(questions, answers) {
 }
 
 const DEFAULT_BRIEF_INTRO = 'Shared with you by your freelancer via BriefSnap.';
-
-function triggerDownload(filename, text) {
-  const blob = new Blob([text], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
 
 export default function BriefOutput({ config, setConfig, niche, questions, answers, theme, setAnswersState, onCopyToast }) {
   const [editingAnswerId, setEditingAnswerId] = useState(null);
@@ -291,12 +280,12 @@ export default function BriefOutput({ config, setConfig, niche, questions, answe
 
   function downloadAnswers() {
     const date = new Date().toISOString().slice(0, 10);
-    triggerDownload(`${safeFilenamePart(niche)}-client-answers-${date}.txt`, formattedQA);
+    downloadTextFile(`${safeFilenamePart(niche)}-client-answers-${date}.txt`, formattedQA);
   }
 
   function downloadBrief() {
     const date = new Date().toISOString().slice(0, 10);
-    triggerDownload(`${safeFilenamePart(niche)}-project-brief-${date}.txt`, briefText);
+    downloadTextFile(`${safeFilenamePart(niche)}-project-brief-${date}.txt`, briefText);
   }
 
   return (

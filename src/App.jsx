@@ -3,7 +3,7 @@ import { PROVIDERS } from './lib/apiRouter';
 import { parseHashState } from './lib/hashEncoder';
 import { GITHUB_URL } from './lib/constants';
 import { checkAccess } from './lib/access';
-import { resolveAnswersState } from './lib/crypto';
+import { resolveAnswersState, answersErrorMessage } from './lib/crypto';
 import Background from './components/Background';
 import StepIndicator from './components/StepIndicator';
 import Setup from './components/Setup';
@@ -125,14 +125,10 @@ function FreelancerApp({ initialAnswersState }) {
         setQuestions(state.questions);
         setAnswersState(state);
         setStep(4);
+        // Keep the ciphertext out of the address bar and browser history from here on.
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
       })
-      .catch((err) => {
-        showToast(
-          err.message === 'NO_KEY'
-            ? 'This answers link is encrypted and this device has no key. Restore your key backup, then paste the link again.'
-            : 'This answers link was not encrypted for the key on this device. Restore the matching key backup.'
-        );
-      });
+      .catch((err) => showToast(answersErrorMessage(err)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

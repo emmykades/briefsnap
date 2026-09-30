@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { parseHashState } from '../lib/hashEncoder';
-import { resolveAnswersState } from '../lib/crypto';
+import { resolveAnswersState, parseAnswersFile, answersErrorMessage } from '../lib/crypto';
 
 export default function LoadAnswersCard({ onLoadAnswers }) {
   const [loadLinkInput, setLoadLinkInput] = useState('');
   const [loadLinkError, setLoadLinkError] = useState('');
+  const fileRef = useRef(null);
 
   async function handleLoadAnswersLink() {
     setLoadLinkError('');
@@ -17,15 +18,20 @@ export default function LoadAnswersCard({ onLoadAnswers }) {
       }
       onLoadAnswers(await resolveAnswersState(state));
     } catch (err) {
-      if (err.message === 'NO_KEY') {
-        setLoadLinkError('This link is encrypted and there is no key on this device. Restore your key backup first.');
-        return;
-      }
-      if (err.message === 'WRONG_KEY') {
-        setLoadLinkError('This link was not encrypted for the key on this device. Restore the key backup that matches the link you sent.');
-        return;
-      }
-      setLoadLinkError('That does not look like a valid link. Paste the full URL your client sent back.');
+      setLoadLinkError(answersErrorMessage(err));
+    }
+  }
+
+  async function handleFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    setLoadLinkError('');
+    try {
+      if (file.size > 5_000_000) throw new Error('BAD_FILE');
+      onLoadAnswers(await resolveAnswersState(parseAnswersFile(await file.text())));
+    } catch (err) {
+      setLoadLinkError(answersErrorMessage(err));
     }
   }
 
@@ -52,6 +58,14 @@ export default function LoadAnswersCard({ onLoadAnswers }) {
           Load
         </button>
       </div>
+      <button
+        type="button"
+        onClick={() => fileRef.current && fileRef.current.click()}
+        className="text-xs text-muted underline hover:text-ink"
+      >
+        Or open an encrypted answers file
+      </button>
+      <input ref={fileRef} type="file" accept=".briefsnap,application/json" onChange={handleFile} className="hidden" />
       {loadLinkError && <p className="text-sm text-red-700">{loadLinkError}</p>}
     </div>
   );

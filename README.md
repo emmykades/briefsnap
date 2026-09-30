@@ -26,11 +26,26 @@ never logged, persisted, or sent anywhere but the provider's own API.
   AES-GCM) before a link is ever shown. The link they send back is ciphertext;
   anyone who intercepts it, or sees it in chat previews or browser history,
   cannot read it.
+- Clients can also download the same ciphertext as an encrypted `.briefsnap` file
+  and send that instead of a link, for people who want answers kept out of URLs.
+  You open it from the "Already have client answers?" card.
+- The ciphertext binds both public keys and the format version into the key
+  derivation and authentication, and the app opens the answers link with its
+  address-bar copy removed so ciphertext doesn't linger in history.
+- The production build ships a strict Content-Security-Policy that only allows
+  connections to the supported AI providers, and sends no referrer.
+- Answers decrypt but are still untrusted input: anyone with your questionnaire
+  link can submit. They are shown as plain text, and shape-checked before use.
 - When you open the link, your browser decrypts it locally. If you then use AI
   to write the brief, the decrypted answers go straight from your browser to the
   AI provider you chose, using your own API key. BriefSnap never sees them.
 - Back up your key from the first screen. Without it, encrypted answers cannot
   be opened by anyone.
+- Known limits: the private key sits in this browser's storage (and in the backup
+  file, unencrypted, so store it privately); anyone with access to your device
+  or a malicious browser extension could read it. Client answers are also sent
+  to your chosen AI provider when you generate a brief, under that provider's
+  terms.
 - Link shortening is offered only for the questionnaire link (questions and a
   public key), never for links that contain answers or briefs.
 

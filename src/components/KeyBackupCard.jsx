@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { exportKeyBackup, importKeyBackup } from '../lib/crypto';
+import { downloadTextFile } from '../lib/download';
 
 export default function KeyBackupCard() {
   const fileRef = useRef(null);
@@ -13,14 +14,7 @@ export default function KeyBackupCard() {
 
   async function handleDownload() {
     try {
-      const text = await exportKeyBackup();
-      const blob = new Blob([text], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'briefsnap-key-backup.json';
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadTextFile('briefsnap-key-backup.json', await exportKeyBackup(), 'application/json');
       report('Backup downloaded. Keep it somewhere private, like a password manager.');
     } catch {
       report('Could not create a backup in this browser.', true);

@@ -11,7 +11,8 @@ import { packBytes, unpackBytes, bytesToB64u, b64uToBytes } from './compress';
 
 const KEY_STORAGE = 'briefsnap_keypair_v1';
 const CURVE = { name: 'ECDH', namedCurve: 'P-256' };
-const HKDF_INFO = new TextEncoder().encode('briefsnap-answers-v1');
+const enc8 = new TextEncoder();
+const V2 = 2; // format byte; v1 blobs start with 0x04 (the raw EC point) instead
 
 // Uncompressed EC point (0x04 || X || Y), base64url — the compact form used in links.
 function jwkToPublicRaw(jwk) {
@@ -28,11 +29,21 @@ function importPublicRaw(publicRaw) {
   return crypto.subtle.importKey('raw', b64uToBytes(publicRaw), CURVE, false, []);
 }
 
-async function deriveAesKey(privateKey, publicKey, usage) {
+function concat(...parts) {
+  const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let at = 0;
+  for (const p of parts) {
+    out.set(p, at);
+    at += p.length;
+  }
+  return out;
+}
+
+async function deriveAesKey(privateKey, publicKey, usage, info) {
   const bits = await crypto.subtle.deriveBits({ name: 'ECDH', public: publicKey }, privateKey, 256);
   const hkdfKey = await crypto.subtle.importKey('raw', bits, 'HKDF', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
-    { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(0), info: HKDF_INFO },
+    { name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(0), info },
     hkdfKey,
     { name: 'AES-GCM', length: 256 },
     false,
@@ -79,37 +90,86 @@ export async function getOrCreateKeyPair() {
   return record;
 }
 
-// Output is one base64url string: ephemeral public key (65 bytes) | iv (12) | ciphertext.
-// The plaintext is deflated first, since ciphertext can't be compressed afterwards.
+// Output is one base64url string: 0x02 | ephemeral public key (65) | iv (12) | ciphertext.
+// The KDF is bound to both public keys and the header is authenticated (AAD), so a
+// blob can't be re-pointed at another key or version. The plaintext is deflated
+// first, since ciphertext can't be compressed afterwards.
 export async function encryptAnswers(freelancerPublicKey, data) {
   const ephemeral = await crypto.subtle.generateKey(CURVE, true, ['deriveBits']);
   const epk = b64uToBytes(jwkToPublicRaw(await crypto.subtle.exportKey('jwk', ephemeral.publicKey)));
-  const aesKey = await deriveAesKey(ephemeral.privateKey, await importPublicRaw(freelancerPublicKey), 'encrypt');
+  const info = concat(enc8.encode('briefsnap-answers-v2'), epk, b64uToBytes(freelancerPublicKey));
+  const aesKey = await deriveAesKey(ephemeral.privateKey, await importPublicRaw(freelancerPublicKey), 'encrypt', info);
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const packed = await packBytes(new TextEncoder().encode(JSON.stringify(data)));
-  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, packed));
-  const out = new Uint8Array(epk.length + iv.length + ct.length);
-  out.set(epk, 0);
-  out.set(iv, epk.length);
-  out.set(ct, epk.length + iv.length);
-  return bytesToB64u(out);
+  const header = concat(Uint8Array.of(V2), epk);
+  const packed = await packBytes(enc8.encode(JSON.stringify(data)));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: header }, aesKey, packed));
+  return bytesToB64u(concat(header, iv, ct));
 }
 
-// Throws if there is no key on this device, or the key doesn't match the link.
+// Throws NO_KEY (no key on this device), WRONG_KEY (not encrypted for this key) or
+// BAD_DATA (decrypts, but isn't a valid answers payload). Anyone holding the public
+// questionnaire link can produce a valid ciphertext, so the payload is untrusted.
 export async function decryptAnswers(enc) {
   const record = readStoredKey() || memoryKey;
   if (!record) throw new Error('NO_KEY');
+  let data;
   try {
     const bytes = b64uToBytes(enc);
-    const epk = bytesToB64u(bytes.slice(0, 65));
-    const iv = bytes.slice(65, 77);
-    const ct = bytes.slice(77);
+    const v2 = bytes[0] === V2;
+    const o = v2 ? 1 : 0; // v1 (legacy links) has no format byte and no AAD
+    const epkBytes = bytes.slice(o, o + 65);
+    const iv = bytes.slice(o + 65, o + 77);
+    const ct = bytes.slice(o + 77);
+    const info = v2
+      ? concat(enc8.encode('briefsnap-answers-v2'), epkBytes, b64uToBytes(record.publicKey))
+      : enc8.encode('briefsnap-answers-v1');
     const privateKey = await crypto.subtle.importKey('jwk', record.privateJwk, CURVE, false, ['deriveBits']);
-    const aesKey = await deriveAesKey(privateKey, await importPublicRaw(epk), 'decrypt');
-    const packed = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, ct));
-    return JSON.parse(new TextDecoder().decode(await unpackBytes(packed)));
+    const aesKey = await deriveAesKey(privateKey, await importPublicRaw(bytesToB64u(epkBytes)), 'decrypt', info);
+    const params = { name: 'AES-GCM', iv };
+    if (v2) params.additionalData = bytes.slice(0, o + 65);
+    const packed = new Uint8Array(await crypto.subtle.decrypt(params, aesKey, ct));
+    data = JSON.parse(new TextDecoder().decode(await unpackBytes(packed)));
   } catch {
     throw new Error('WRONG_KEY');
+  }
+  const plain = (v) => v && typeof v === 'object' && !Array.isArray(v);
+  if (!plain(data) || !Array.isArray(data.questions) || !plain(data.answers) || typeof data.niche !== 'string') {
+    throw new Error('BAD_DATA');
+  }
+  return data;
+}
+
+// The encrypted-file alternative to a link: same ciphertext, no URL involved.
+export function answersFileContents(enc) {
+  return JSON.stringify({ briefsnapAnswers: 1, enc });
+}
+
+export function parseAnswersFile(text) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    parsed = null;
+  }
+  if (!parsed || parsed.briefsnapAnswers !== 1 || typeof parsed.enc !== 'string') {
+    throw new Error('BAD_FILE');
+  }
+  return { v: 2, type: 'answers', enc: parsed.enc };
+}
+
+// Plain-English text for the errors above, shared by every place answers are opened.
+export function answersErrorMessage(err) {
+  switch (err.message) {
+    case 'NO_KEY':
+      return 'These answers are encrypted and there is no key on this device. Restore your key backup first.';
+    case 'WRONG_KEY':
+      return 'These answers were not encrypted for the key on this device. Restore the key backup that matches the questionnaire you sent.';
+    case 'BAD_DATA':
+      return 'These answers decrypted but are not in a format BriefSnap understands.';
+    case 'BAD_FILE':
+      return 'That is not a BriefSnap answers file.';
+    default:
+      return 'That does not look like a valid link. Paste the full URL your client sent back.';
   }
 }
 

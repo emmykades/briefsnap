@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { buildShareUrl } from '../lib/hashEncoder';
-import { encryptAnswers } from '../lib/crypto';
+import { encryptAnswers, answersFileContents } from '../lib/crypto';
+import { downloadTextFile } from '../lib/download';
 import { getTheme, themeTextStyle, themePrimaryButtonStyle } from '../lib/themes';
 import { CheckIcon } from './icons';
 
@@ -54,6 +55,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
   const canSubmit = answeredRequiredCount === requiredQuestions.length;
 
   const [shareUrl, setShareUrl] = useState('');
+  const [encrypted, setEncrypted] = useState('');
   const [encryptError, setEncryptError] = useState(false);
 
   // The answers link is encrypted to the freelancer's public key before it is
@@ -78,7 +80,10 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
         }
         const enc = await encryptAnswers(publicKey, data);
         const url = await buildShareUrl({ v: 2, type: 'answers', enc });
-        if (!cancelled) setShareUrl(url);
+        if (!cancelled) {
+          setEncrypted(enc);
+          setShareUrl(url);
+        }
       } catch {
         if (!cancelled) setEncryptError(true);
       }
@@ -107,7 +112,7 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
             <CheckIcon className="w-6 h-6" />
           </span>
           <h1 className="text-4xl font-normal text-ink">Done!</h1>
-          <p className="text-muted">Copy the link below and send it back to your freelancer.</p>
+          <p className="text-muted">Send your answers back to your freelancer with the link below, or as a file.</p>
           <p className="text-xs text-muted">
             {publicKey
               ? 'Your answers are encrypted in your browser. Only your freelancer can open this link.'
@@ -128,6 +133,21 @@ export default function ClientForm({ niche, questions, formTitle, formIntro, the
               {copied ? 'Copied!' : 'Copy link'}
             </button>
           </div>
+          {encrypted && (
+            <div className="flex flex-col items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => downloadTextFile('briefsnap-answers.briefsnap', answersFileContents(encrypted), 'application/json')}
+                className="btn-secondary px-3 py-1.5 text-xs"
+              >
+                Download encrypted file instead
+              </button>
+              <p className="text-xs text-muted">
+                Prefer to keep answers out of links? Send this file to your freelancer by email or chat. It is encrypted
+                the same way.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );

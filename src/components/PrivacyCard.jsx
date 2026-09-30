@@ -3,7 +3,7 @@ import { CheckIcon } from './icons';
 const POINTS = [
   {
     title: 'Answers are encrypted before they leave your client’s browser.',
-    body: 'Your client link carries only a public key. The link they send back is unreadable ciphertext, so chat previews, browser history and screenshots reveal nothing.',
+    body: 'Your client link carries only a public key. The link they send back is unreadable ciphertext, so chat previews, browser history and screenshots reveal nothing. Prefer no link at all? Your client can send an encrypted file instead.',
   },
   {
     title: 'Only your device can open them.',

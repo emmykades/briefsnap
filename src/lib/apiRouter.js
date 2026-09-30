@@ -414,10 +414,10 @@ async function callGemini({ model, apiKey, messages }) {
       parts: [{ text: m.content }],
     }));
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify({
       contents: conversation,
       systemInstruction: systemMessages ? { parts: [{ text: systemMessages }] } : undefined,
